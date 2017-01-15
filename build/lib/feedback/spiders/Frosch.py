@@ -34,6 +34,7 @@ class IreSpider(CrawlSpider):
         'http://irecommend.ru/taxonomy/term/393347%20930502/reviews?page=22',
         'http://irecommend.ru/taxonomy/term/393347%20930502/reviews?page=23',
         'http://irecommend.ru/taxonomy/term/393347%20930502/reviews?page=24',
+        'http://irecommend.ru/taxonomy/term/393347%20930502/reviews?page=25',
 
     ]
 

@@ -3,27 +3,14 @@ from scrapy.http import  Request
 from feedback.items import FeedbackItem
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
-
+from scrapy.selector import Selector
 
 class IreSpider(CrawlSpider):
-    name = "BioMio"
+    name = "test"
     allowed_domains = ["irecommend.ru"]
     start_urls = [
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=1',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=2',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=3',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=4',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=5',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=6',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=7',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=8',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=9',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=10',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=11',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=12',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=13',
-       'http://irecommend.ru/taxonomy/term/106917%20320081%20388413/reviews?page=14',
+        'http://irecommend.ru/taxonomy/term/393347%20930502/reviews',
+
     ]
 
     rules = [
@@ -35,7 +22,7 @@ class IreSpider(CrawlSpider):
         Rule(LinkExtractor(
         restrict_xpaths=('//*[@class="views-field-teaser"]/a'),
         allow=['/content/']) ,
-        callback='parse_product_page' ,
+        callback='parse_comments' ,
         follow=True)
 
     ]
@@ -54,6 +41,40 @@ class IreSpider(CrawlSpider):
         item['site'] = IreSpider.allowed_domains
         item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]/div/*/text()').extract()
         yield item
+
+
+
+
+    def parse_comments(self,response):
+
+       item = FeedbackItem()
+       item['date'] = response.selector.xpath('//span[@class="dtreviewed"]/meta/@content').extract()
+       item['user'] = response.selector.xpath('//strong[@class="reviewer"]/a/text()').extract()
+       item['title'] = response.selector.xpath('//h2[@class="summary"]/a/text()').extract()
+       item['url'] = response.url
+       item['site'] = IreSpider.allowed_domains
+       item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]/div//*').extract()
+       yield item
+
+       sel = Selector(response)
+       title = response.selector.xpath('//h2[@class="summary"]/a/text()').extract()
+       sites = sel.xpath('//ul[@class="list"]/li')
+       items = []
+       for site in sites:
+           item = FeedbackItem()
+
+           item['url'] = response.url
+           item['site'] = IreSpider.allowed_domains
+           item['title'] = title
+           item['text'] = site.xpath('div[@class="txt"]//*').extract()
+           item['user'] = site.xpath('div/a/text()').extract()
+           item['date'] = site.xpath('div/span/@title').extract()
+
+           items.append(item)
+
+       for item in items:
+           yield item
+
 
      #Request(url=response.url , callback='parse_f')
 

@@ -8,6 +8,7 @@ feedback/spiders/Frosch.py
 feedback/spiders/__init__.py
 feedback/spiders/biomio.py
 feedback/spiders/ire.py
+feedback/spiders/test.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt
