@@ -18,7 +18,7 @@ class FeedbackPipeline(object):
 class ImageAlt(object):
     def process_item(self, item, spider):
         st = ''.join(item['text'])
-        re1 = re.sub('<img.*alt="','',st)
-        re2 = re.sub('".*">','',re1)
+        p=re.compile(r"(<img src.*alt=\")+(\W*)(\w*)(\">)")
+        re2=re.sub(p,r"\3",st)
         item['text'] = Selector(text=re2).xpath('//text()').extract()
         return item

@@ -14,36 +14,13 @@ class IreSpider(CrawlSpider):
     ]
 
     rules = [
-        #Rule(LinkExtractor(
-        #allow=['/reviews\?page=d*']) ,
-        #callback='parse_page',
-        #follow=True,),
 
         Rule(LinkExtractor(
         restrict_xpaths=('//*[@class="views-field-teaser"]/a'),
         allow=['/content/']) ,
         callback='parse_comments' ,
         follow=True)
-
-    ]
-
-    #def parse_page(self, response):
-    #    response.selector.xpath('//nobr[@class="views-field-teaser"]/a').extract()
-
-
-
-    def parse_product_page(self, response):
-        item = FeedbackItem()
-        item['date'] = response.selector.xpath('//span[@class="dtreviewed"]/text()').extract()
-        item['user'] = response.selector.xpath('//strong[@class="reviewer"]/a/text()').extract()
-        item['title'] = response.selector.xpath('//h2[@class="summary"]/a/text()').extract()
-        item['url'] = response.url
-        item['site'] = IreSpider.allowed_domains
-        item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]/div/*/text()').extract()
-        yield item
-
-
-
+            ]
 
     def parse_comments(self,response):
 
@@ -61,8 +38,8 @@ class IreSpider(CrawlSpider):
        sites = sel.xpath('//ul[@class="list"]/li')
        items = []
        for site in sites:
-           item = FeedbackItem()
 
+           item = FeedbackItem()
            item['url'] = response.url
            item['site'] = IreSpider.allowed_domains
            item['title'] = title
@@ -82,5 +59,3 @@ class IreSpider(CrawlSpider):
         #item = FeedbackItem()
         #item['url']= response.selector.xpath('//div[@class="items list"]/a[@class="more"]').extract()
         #yield item
-
-
