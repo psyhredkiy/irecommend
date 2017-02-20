@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from scrapy.selector import  Selector
+from bs4 import BeautifulSoup
 # Define your item pipelines here
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
@@ -18,7 +19,8 @@ class FeedbackPipeline(object):
 class ImageAlt(object):
     def process_item(self, item, spider):
         st = ''.join(item['text'])
-        p=re.compile(r"(<img src.*alt=\")+(\W*)(\w*)(\">)")
-        re2=re.sub(p,r"\3",st)
-        item['text'] = Selector(text=re2).xpath('//text()').extract()
+        soup = BeautifulSoup(st,'html.parser')
+        for img in soup('img'):
+            img.replace_with(img['alt'])
+        item['text'] = soup
         return item
