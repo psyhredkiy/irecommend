@@ -22,5 +22,5 @@ class ImageAlt(object):
         soup = BeautifulSoup(st,'html.parser')
         for img in soup('img'):
             img.replace_with(img['alt'])
-        item['text'] = soup
+        item['text'] = soup.get_text()
         return item
