@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from bs4 import BeautifulSoup
+import re
 from scrapy.http import  Request
 from feedback.items import FeedbackItem
 from scrapy.spiders import CrawlSpider, Rule
@@ -16,7 +18,7 @@ class IreSpider(CrawlSpider):
     rules = [
 
         Rule(LinkExtractor(
-        restrict_xpaths=('//*[@class="views-field-teaser"]/a'),
+        restrict_xpaths=('//nobr[@class="views-field-teaser"]/a'),
         allow=['/content/']) ,
         callback='parse_comments' ,
         follow=True)
@@ -30,22 +32,32 @@ class IreSpider(CrawlSpider):
        item['title'] = response.selector.xpath('//h2[@class="summary"]/a/text()').extract()
        item['url'] = response.url
        item['site'] = IreSpider.allowed_domains
-       item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]/div//*').extract()
+       item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]//*').extract()
        yield item
 
        sel = Selector(response)
        title = response.selector.xpath('//h2[@class="summary"]/a/text()').extract()
-       sites = sel.xpath('//ul[@class="list"]/li')
+       sites = sel.xpath('//ul[@class="list"]/li').extract()
        items = []
-       for site in sites:
 
+       for site in sites:
            item = FeedbackItem()
            item['url'] = response.url
            item['site'] = IreSpider.allowed_domains
            item['title'] = title
-           item['text'] = site.xpath('div[@class="txt"]//*').extract()
-           item['user'] = site.xpath('div/a/text()').extract()
-           item['date'] = site.xpath('div/span/@title').extract()
+           #txt = site.xpath('/div[@class="txt"]').extract()
+           sitej = "".join(site)
+           sp = BeautifulSoup(sitej,'html.parser')
+           soup = sp.find("div",class_="txt")
+           strngs = []
+           for img in soup("img"):
+               img.replace_with(img['alt'])
+           for string in soup.stripped_strings:
+               strngs.append(string)
+           strj= "".join(strngs)
+           item['text'] = strj
+           item['user'] =  site.xpath('div/a/text()').extract()
+           item['date'] =  site.xpath('div/span/@title').extract()
 
            items.append(item)
 
@@ -53,9 +65,3 @@ class IreSpider(CrawlSpider):
            yield item
 
 
-     #Request(url=response.url , callback='parse_f')
-
-    #def parse_f(self,response):
-        #item = FeedbackItem()
-        #item['url']= response.selector.xpath('//div[@class="items list"]/a[@class="more"]').extract()
-        #yield item
