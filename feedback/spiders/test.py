@@ -33,6 +33,7 @@ class IreSpider(CrawlSpider):
        item['url'] = response.url
        item['site'] = IreSpider.allowed_domains
        item['text'] = response.selector.xpath('//div[@class="views-field-teaser"]//*').extract()
+       item['type'] = 'post'
        yield item
 
        sel = Selector(response)
@@ -45,19 +46,20 @@ class IreSpider(CrawlSpider):
            item['url'] = response.url
            item['site'] = IreSpider.allowed_domains
            item['title'] = title
+           #item['user'] = site.xpath('div/a/').extract()
+           #item['date'] = site.xpath('div/span/@title').extract()
            #txt = site.xpath('/div[@class="txt"]').extract()
            sitej = "".join(site)
-           sp = BeautifulSoup(sitej,'html.parser')
+           sp = BeautifulSoup(sitej)
+           item['user'] = sp.div.find_all('a')[1].contents
+           item['date'] = sp.div.span['title']
            soup = sp.find("div",class_="txt")
            strngs = []
-           for img in soup("img"):
+           for img in soup.find_all("img"):
                img.replace_with(img['alt'])
-           for string in soup.stripped_strings:
-               strngs.append(string)
-           strj= "".join(strngs)
-           item['text'] = strj
-           item['user'] =  site.xpath('div/a/text()').extract()
-           item['date'] =  site.xpath('div/span/@title').extract()
+           item['text'] = soup.get_text()
+           item['type'] = 'comment'
+
 
            items.append(item)
 
