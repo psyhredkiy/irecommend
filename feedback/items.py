@@ -17,5 +17,6 @@ class FeedbackItem(scrapy.Item):
     user = scrapy.Field()
     title = scrapy.Field()
     text = scrapy.Field()
+    type = scrapy.Field()
 
 
