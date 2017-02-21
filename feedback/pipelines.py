@@ -20,7 +20,7 @@ class ImageAlt(object):
     def process_item(self, item, spider):
         st = ''.join(item['text'])
         soup = BeautifulSoup(st,'html.parser')
-        for img in soup('img'):
+        for img in soup.find_all('img'):
             img.replace_with(img['alt'])
         item['text'] = soup.get_text()
         return item
